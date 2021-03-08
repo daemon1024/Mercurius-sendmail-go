@@ -1,16 +1,34 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/smtp"
 	"os"
 )
 
+type subscriberList struct {
+	Subscribers []string `json:"subscribers"`
+}
+
 func main() {
 
-	mailingList := []string{} // TODO Load list from json
+	jsonFile, err := os.Open("emails.json")
 
-	send("OwO", mailingList)
+	if err != nil {
+		log.Print(err)
+	}
+
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var list subscriberList
+
+	json.Unmarshal(byteValue, &list)
+
+	send("OwO", list.Subscribers)
 }
 
 func send(body string, to []string) {
